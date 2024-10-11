@@ -9,6 +9,10 @@ module.exports = function (api) {
       }], 
       '@babel/preset-typescript'
     ],
-    plugins: ['@babel/plugin-transform-modules-commonjs'], // Add this plugin
+    plugins: ['@babel/plugin-transform-modules-commonjs',
+      ["@babel/plugin-transform-private-property-in-object", { "loose": true }],
+      ["@babel/plugin-transform-private-methods", { "loose": true }],
+      ["@babel/plugin-transform-class-properties", { "loose": true }]
+    ], // Add this plugin
   };
 };
