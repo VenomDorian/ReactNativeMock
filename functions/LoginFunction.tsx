@@ -1,6 +1,7 @@
 import {  View, TextInput, Button} from 'react-native';
 import { useState } from 'react';
 import { initializeApp } from "firebase/app";
+import React from 'react';
 
 import {
   getAuth,
@@ -29,6 +30,7 @@ export default function LoginFunction(props : any){
         <View>
             <TextInput
                 placeholder='email'
+                value={email}
                 onChangeText={text => {
                 setEmail(text);
                 }}
@@ -37,6 +39,7 @@ export default function LoginFunction(props : any){
             <TextInput
                 placeholder='Password'
                 secureTextEntry={true}
+                value={password}
                 onChangeText={text => {
                     setPassword(text);
                 }}

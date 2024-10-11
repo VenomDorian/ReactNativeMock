@@ -1,42 +1,116 @@
-import {  View, TextInput, Button} from 'react-native';
-import { useState } from 'react';
+import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
 import LoginFunction from '../functions/LoginFunction';
-LoginFunction
+import { signInWithEmailAndPassword, getAuth } from 'firebase/auth';
 
-
-// Mock the Firebase methods
+// Mock the Firebase methods once globally for all tests
 jest.mock('firebase/auth', () => ({
-    signInWithEmailAndPassword: jest.fn(() => Promise.resolve({ user: { email: 'test@example.com' } })),
-    createUserWithEmailAndPassword: jest.fn(() => Promise.resolve({ user: { email: 'test@example.com' } })),
-    signOut: jest.fn(() => Promise.resolve()),
-    getAuth: jest.fn(() => Promise.resolve),
+  signInWithEmailAndPassword: jest.fn(),
+  getAuth: jest.fn(() => ({})),
 }));
 
-it('logs in successfully with valid credentials', async () => {
-    const { getByPlaceholderText, getByRole} = render(<LoginFunction/>);
-    const email = 'test@example.com';
-    const password = 'validPassword';
-    
-    fireEvent.changeText(getByPlaceholderText('email'), email);
-    fireEvent.changeText(getByPlaceholderText('Password'), password);
-    fireEvent.press(getByRole('button'))
-
-    
-    await waitFor(() => {
-      expect(signInWithEmailAndPassword).toHaveBeenCalledWith(expect.anything(), email, password);
-      // Add further assertions for successful login behavior (e.g., navigation, UI state changes)
-    });
-});
-
 describe('LoginFunction Component', () => {
+
+  // Reseting of the mock at
+  beforeEach(() => {
+    // Reset the mock function so we start with a clean slate for each test
+    signInWithEmailAndPassword.mockReset();
+  });
+
   it('renders email and password inputs and the sign-up button', () => {
     const { getByPlaceholderText, getByText } = render(<LoginFunction />);
 
     expect(getByPlaceholderText('email')).toBeTruthy();
     expect(getByPlaceholderText('Password')).toBeTruthy();
     expect(getByText('Sign Up')).toBeTruthy();
+  });
+
+  it('updates email and password states on input', () => {
+    const { getByPlaceholderText } = render(<LoginFunction />);
+
+    const emailInput = getByPlaceholderText('email');
+    const passwordInput = getByPlaceholderText('Password');
+
+    fireEvent.changeText(emailInput, 'test@example.com');
+    fireEvent.changeText(passwordInput, 'testpassword');
+
+    expect(emailInput.props.value).toBe('test@example.com');
+    expect(passwordInput.props.value).toBe('testpassword');
+  });
+
+  it('calls signInWithEmailAndPassword with correct email and password on button press', async () => {
+    const { getByPlaceholderText, getByText } = render(<LoginFunction />);
+
+    const emailInput = getByPlaceholderText('email');
+    const passwordInput = getByPlaceholderText('Password');
+    const signUpButton = getByText('Sign Up');
+
+    fireEvent.changeText(emailInput, 'test@example.com');
+    fireEvent.changeText(passwordInput, 'testpassword');
+
+    // Mock a successful response for this test
+    signInWithEmailAndPassword.mockResolvedValue({
+      user: { email: 'test@example.com' },
+    });
+
+    fireEvent.press(signUpButton);
+
+    await waitFor(() => {
+      expect(signInWithEmailAndPassword).toHaveBeenCalledWith(
+        expect.anything(), // The auth object
+        'test@example.com',
+        'testpassword'
+      );
+    });
+  });
+
+  it('logs an error message when signInWithEmailAndPassword fails', async () => {
+    const consoleSpy = jest.spyOn(console, 'log');
+    const { getByPlaceholderText, getByText } = render(<LoginFunction />);
+
+    const emailInput = getByPlaceholderText('email');
+    const passwordInput = getByPlaceholderText('Password');
+    const signUpButton = getByText('Sign Up');
+
+    fireEvent.changeText(emailInput, 'test@example.com');
+    fireEvent.changeText(passwordInput, 'wrongpassword');
+
+    // Mock a failed response for this test
+    signInWithEmailAndPassword.mockRejectedValue({
+      message: 'Invalid credentials',
+      code: 'auth/wrong-password',
+    });
+
+    fireEvent.press(signUpButton);
+
+    await waitFor(() => {
+      expect(signInWithEmailAndPassword).toHaveBeenCalled();
+      expect(consoleSpy).toHaveBeenCalledWith('ERRORInvalid credentials auth/wrong-password');
+    });
+  });
+
+  it('logs a success message when signInWithEmailAndPassword is successful', async () => {
+    const consoleSpy = jest.spyOn(console, 'log');
+    const { getByPlaceholderText, getByText } = render(<LoginFunction />);
+
+    const emailInput = getByPlaceholderText('email');
+    const passwordInput = getByPlaceholderText('Password');
+    const signUpButton = getByText('Sign Up');
+
+    fireEvent.changeText(emailInput, 'test@example.com');
+    fireEvent.changeText(passwordInput, 'testpassword');
+
+    // Mock a successful response for this test
+    signInWithEmailAndPassword.mockResolvedValue({
+      user: { email: 'test@example.com' },
+    });
+
+    fireEvent.press(signUpButton);
+
+    await waitFor(() => {
+      expect(signInWithEmailAndPassword).toHaveBeenCalled();
+      expect(consoleSpy).toHaveBeenCalledWith('Succesful Login');
+    });
   });
 });
 

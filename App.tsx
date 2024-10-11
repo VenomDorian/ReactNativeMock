@@ -1,5 +1,6 @@
 import { StyleSheet, Text, View, TextInput, Button, Image } from 'react-native';
 import { useState } from 'react';
+import React from 'react';
 import { initializeApp } from "firebase/app";
 import ReactNativeAsyncStorage from '@react-native-async-storage/async-storage';
 import {
@@ -47,6 +48,8 @@ const auth = initializeAuth(
   {persistence: getReactNativePersistence(ReactNativeAsyncStorage)}
 );
 */
+console.log(auth);
+
 export default function App() {
 
   const[email, setEmail] = useState("");
