@@ -1,7 +1,7 @@
 import React from 'react';
 import { render, fireEvent, waitFor } from '@testing-library/react-native';
-import LoginFunction from '../functions/LoginFunction';
-import { signInWithEmailAndPassword, getAuth } from 'firebase/auth';
+import LoginFunction from '../components/LoginFunction';
+import { signInWithEmailAndPassword, getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 
 // Mock the Firebase methods once globally for all tests
 jest.mock('firebase/auth', () => ({
