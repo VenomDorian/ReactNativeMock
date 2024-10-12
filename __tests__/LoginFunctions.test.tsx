@@ -3,7 +3,7 @@ import { render, fireEvent, waitFor } from '@testing-library/react-native';
 import LoginFunction from '../components/LoginFunction';
 import { signInWithEmailAndPassword, getAuth, createUserWithEmailAndPassword } from 'firebase/auth';
 
-// Mock the Firebase methods once globally for all tests
+// Mock the Firebase methods 
 jest.mock('firebase/auth', () => ({
   signInWithEmailAndPassword: jest.fn(),
   getAuth: jest.fn(() => ({})),
@@ -11,7 +11,7 @@ jest.mock('firebase/auth', () => ({
 
 describe('LoginFunction Component', () => {
 
-  // Reseting of the mock at
+  // Reseting of the mock before all
   beforeEach(() => {
     // Reset the mock function so we start with a clean slate for each test
     signInWithEmailAndPassword.mockReset();
